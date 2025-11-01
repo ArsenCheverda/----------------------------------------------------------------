@@ -33,24 +33,24 @@ class LocalStorage implements StorageInterface
 {
     
     //Конструктор та властивості ( rootDirectory).
-    private function __construct() { ... }
+    private function __construct() { }
     
 
     public function putFile(string path, string content): bool
     {
-        // ... логіка збереження файлу на диск ...
+        // логіка збереження файлу на диск
         return true;
     }
 
     public function getFile(string path): ?string
     {
-        // ... логіка читання файлу з диска ...
+        // логіка читання файлу з диска
         return "Контент файлу з локального диску";
     }
 
     public function deleteFile(string path): bool
     {
-        // ... логіка видалення файлу з диска ...
+        // логіка видалення файлу з диска
         return true;
     }
 }
@@ -62,24 +62,24 @@ class S3Storage implements StorageInterface
 {
     /*
     Тут знаходяться параметри, bucket, apiKey 
-    private function __construct(string apiKey, string bucket) { ... }
+    private function __construct(string apiKey, string bucket) { }
     */
 
     public function putFile(string path, string content): bool
     {
-        // ... логіка завантаження файлу в S3 ...
+        // логіка завантаження файлу в S3
         return true;
     }
 
     public function getFile(string path): ?string
     {
-        // ... логіка отримання файлу з S3 ...
+        // логіка отримання файлу з S3
         return "Контент файлу з S3";
     }
 
     public function deleteFile(string path): bool
     {
-        // ... логіка видалення файлу з S3 ...
+        // логіка видалення файлу з S3
         return true;
     }
 }
@@ -151,7 +151,7 @@ class StorageManager
     Метод для отримання конкретного екземпляра сховища за типом.
     Тип сховища ('local' або 's3') буде братися з налаштувань користувача.
     */
-    @param string storageType "local", "s3", ...
+    @param string storageType "local", "s3",
     @return StorageInterface
     @throws \Exception // Якщо тип сховища не підтримується.
 
