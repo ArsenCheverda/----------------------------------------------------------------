@@ -39,16 +39,9 @@ interface Renderer
     public function renderProductPage(Product $product): string;
 }
 
-//
--------------------------------------------------------------------------
-3. КОНКРЕТНІ ІМПЛЕМЕНТАТОРИ (Concrete Renderers)
--------------------------------------------------------------------------
-Класи, що реалізують інтерфейс Renderer для конкретних форматів.
- */
+// Класи, що реалізують інтерфейс Renderer для конкретних форматів.
 
-//
-Подання у форматі HTML.
- */
+//Подання у форматі HTML.
 class HTMLRenderer implements Renderer
 {
     public function renderSimplePage(string $title, string $content): string
@@ -81,9 +74,7 @@ class HTMLRenderer implements Renderer
     }
 }
 
-//
-Подання у форматі JSON.
- */
+// Подання у форматі JSON.
 class JsonRenderer implements Renderer
 {
     public function renderSimplePage(string $title, string $content): string
@@ -117,9 +108,7 @@ class JsonRenderer implements Renderer
     }
 }
 
-//
-Подання у форматі XML.
- */
+// Подання у форматі XML.
 class XmlRenderer implements Renderer
 {
     public function renderSimplePage(string $title, string $content): string
@@ -146,56 +135,42 @@ class XmlRenderer implements Renderer
     }
 }
 
-//
--------------------------------------------------------------------------
-4. АБСТРАКЦІЯ (Page)
--------------------------------------------------------------------------
-Базовий клас "Абстракції".
-Містить посилання на об'єкт "Реалізації" (Implementator).
-Делегує виконання роботи об'єкту реалізації.
- */
+/*
+Базовий клас абстракції.
+Містить посилання на об'єкт реалізації.
+Делегує виконання роботи об'єкту реалізації.*/
 abstract class Page
 {
-    //
-    @var Renderer Посилання на об'єкт реалізації (Міст).
-     */
+
+    @var Renderer // Посилання на об'єкт реалізації (Міст).
+
     protected Renderer $renderer;
 
-    //
-    Конструктор приймає об'єкт реалізації.
+    // Конструктор приймає об'єкт реалізації.
     @param Renderer $renderer
-     */
+
     public function __construct(Renderer $renderer)
     {
         $this->renderer = $renderer;
     }
 
-    //
-    Метод для зміни реалізації "на льоту".
+    // Метод для зміни реалізації.
     @param Renderer $renderer
-     */
+
     public function setRenderer(Renderer $renderer): void
     {
         $this->renderer = $renderer;
     }
 
-    //
-    Абстрактний метод, який будуть реалізовувати уточнені абстракції.
+    // Абстрактний метод, який будуть реалізовувати уточнені абстракції.
     @return string
-     */
+
     abstract public function view(): string;
 }
 
-//
--------------------------------------------------------------------------
-5. УТОЧНЕНІ АБСТРАКЦІЇ (Refined Abstractions)
--------------------------------------------------------------------------
-Розширення базової "Абстракції" для конкретних типів сторінок.
- */
+// Розширення базової "Абстракції" для конкретних типів сторінок.
 
-//
-Проста сторінка.
- */
+// Проста сторінка.
 class SimplePage extends Page
 {
     protected string $title;
@@ -208,7 +183,7 @@ class SimplePage extends Page
         $this->content = $content;
     }
 
-    //
+    /*
     Реалізація методу view.
     Делегує роботу конкретному рендереру.
      */
@@ -218,9 +193,7 @@ class SimplePage extends Page
     }
 }
 
-//
-Сторінка товару.
- */
+// Сторінка товару.
 class ProductPage extends Page
 {
     protected Product $product;
@@ -231,7 +204,7 @@ class ProductPage extends Page
         $this->product = $product;
     }
 
-    //
+    /*
     Реалізація методу view.
     Делегує роботу конкретному рендереру.
      */
@@ -241,17 +214,12 @@ class ProductPage extends Page
     }
 }
 
-//
--------------------------------------------------------------------------
-6. КЛІЄНТСЬКИЙ КОД
--------------------------------------------------------------------------
-Приклад використання.
- */
+// Приклад використання.
 
 // Створюємо об'єкт товару
 $product = new Product(
     'p123',
-    'Ноутбук "Мрія"',
+    'Ноутбук "1"',
     'Потужний ноутбук для роботи та розваг.',
     '/images/laptop.jpg'
 );
@@ -261,45 +229,37 @@ $htmlRenderer = new HTMLRenderer();
 $jsonRenderer = new JsonRenderer();
 $xmlRenderer = new XmlRenderer();
 
-echo "============================================================\n";
-echo "1. РЕНДЕРИНГ ПРОСТОЇ СТОРІНКИ (SimplePage)\n";
-echo "============================================================\n\n";
-
 // Створюємо просту сторінку з HTML рендерером
 $simplePage = new SimplePage($htmlRenderer, 'Про нас', 'Це сторінка про нашу компанію.');
 
-echo "--- HTML Подання ---\n";
+// HTML Подання
 echo $simplePage->view() . "\n\n";
 
-// Міняємо рендерер "на льоту" на JSON
+// Міняємо рендерер на JSON
 $simplePage->setRenderer($jsonRenderer);
-echo "--- JSON Подання ---\n";
+// JSON Подання
 echo $simplePage->view() . "\n\n";
 
 // Міняємо рендерер на XML
 $simplePage->setRenderer($xmlRenderer);
-echo "--- XML Подання ---\n";
+// XML Подання
 echo $simplePage->view() . "\n\n";
 
-
-echo "============================================================\n";
-echo "2. РЕНДЕРИНГ СТОРІНКИ ТОВАРУ (ProductPage)\n";
-echo "============================================================\n\n";
 
 // Створюємо сторінку товару з JSON рендерером
 $productPage = new ProductPage($jsonRenderer, $product);
 
-echo "--- JSON Подання ---\n";
+// JSON Подання
 echo $productPage->view() . "\n\n";
 
 // Міняємо рендерер на HTML
 $productPage->setRenderer($htmlRenderer);
-echo "--- HTML Подання ---\n";
+// HTML Подання
 echo $productPage->view() . "\n\n";
 
 // Міняємо рендерер на XML
 $productPage->setRenderer($xmlRenderer);
-echo "--- XML Подання ---\n";
+// XML Подання
 echo $productPage->view() . "\n\n";
 
 ?>

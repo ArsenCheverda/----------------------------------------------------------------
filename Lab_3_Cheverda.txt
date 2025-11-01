@@ -1,0 +1,187 @@
+// Інтерфейс Будівельника
+interface QueryBuilder is
+
+    // Метод для вказання таблиці та полів для вибірки
+    @param table: String // Назва таблиці
+    @param fields: Array<String> // Список полів
+    @return QueryBuilder // Повертає себе для ланцюжкових викликів
+    method select(table: String, fields: Array<String>): QueryBuilder
+
+    // Метод для додавання умови WHERE
+    @param field: String // Поле для умови
+    @param operator: String // Оператор (наприклад, "=", ">", "LIKE")
+    @param value: String // Значення для порівняння
+    @return QueryBuilder // Повертає себе для ланцюжкових викликів
+    method where(field: String, operator: String, value: String): QueryBuilder
+
+    // Метод для обмеження кількості результатів
+    @param count: Integer // Максимальна кількість рядків
+    @return QueryBuilder // Повертає себе для ланцюжкових викликів
+    method limit(count: Integer): QueryBuilder
+
+    // Кінцевий метод, який збирає всі частини і повертає готовий SQL-запит
+    @return String // Згенерований SQL-запит
+    method getSQL(): String
+
+    // Метод для скидання стану будівельника, щоб його можна було використати повторно.
+    method reset(): void
+
+end interface
+
+// Будівельник для PostgreSQL
+class PostgreSQLQueryBuilder implements QueryBuilder is
+
+    // Внутрішні поля для зберігання частин запиту
+    private field selectClause: String
+    private field whereClauses: Array<String>
+    private field limitClause: String
+
+    // Конструктор та метод reset
+    public method PostgreSQLQueryBuilder() is
+        self.reset()
+    end method
+
+    public method reset() is
+        self.selectClause = ""
+        self.whereClauses = []
+        self.limitClause = ""
+    end method
+
+    // Реалізація методів інтерфейсу
+    public method select(table: String, fields: Array<String>): QueryBuilder is
+        // PostgreSQL використовує подвійні лапки для ідентифікаторів
+        stringFields = join(fields, '", "')
+        self.selectClause = 'SELECT "' + stringFields + '" FROM "' + table + '"'
+        return self
+    end method
+
+    public method where(field: String, operator: String, value: String): QueryBuilder is
+        // PostgreSQL використовує одинарні лапки для рядкових значень
+        self.whereClauses.push('"' + field + '" ' + operator + " '" + value + "'")
+        return self
+    end method
+
+    public method limit(count: Integer): QueryBuilder is
+        self.limitClause = "LIMIT " + convertToString(count)
+        return self
+    end method
+
+    public method getSQL(): String is
+        // Збираємо кінцевий запит
+        query = self.selectClause
+
+        if not self.whereClauses.isEmpty() then
+            query = query + " WHERE " + join(self.whereClauses, " AND ")
+        end if
+
+        if not self.limitClause.isEmpty() then
+            query = query + " " + self.limitClause
+        end if
+
+        query = query + ";" // PostgreSQL завершує запити крапкою з комою
+
+        // Скидаємо стан для майбутнього використання
+        self.reset()
+        return query
+    end method
+
+end class
+
+// Будівельник для MySQL
+class MySQLQueryBuilder implements QueryBuilder is
+
+    // Внутрішні поля для зберігання частин запиту
+    private field selectClause: String
+    private field whereClauses: Array<String>
+    private field limitClause: String
+
+    public method MySQLQueryBuilder() is
+        self.reset()
+    end method
+
+    public method reset() is
+        self.selectClause = ""
+        self.whereClauses = []
+        self.limitClause = ""
+    end method
+
+    // Реалізація методів інтерфейсу
+    public method select(table: String, fields: Array<String>): QueryBuilder is
+        // MySQL використовує зворотні лапки (backticks) для ідентифікаторів
+        stringFields = join(fields, "`, `")
+        self.selectClause = "SELECT `" + stringFields + "` FROM `" + table + "`"
+        return self
+    end method
+
+    public method where(field: String, operator: String, value: String): QueryBuilder is
+        // MySQL також використовує одинарні лапки для рядкових значень
+        self.whereClauses.push("`" + field + "` " + operator + " '" + value + "'")
+        return self
+    end method
+
+    public method limit(count: Integer): QueryBuilder is
+        // Синтаксис LIMIT ідентичний
+        self.limitClause = "LIMIT " + convertToString(count)
+        return self
+    end method
+
+    public method getSQL(): String is
+        // Збираємо кінцевий запит
+        query = self.selectClause
+
+        if not self.whereClauses.isEmpty() then
+            query = query + " WHERE " + join(self.whereClauses, " AND ")
+        end if
+
+        if not self.limitClause.isEmpty() then
+            query = query + " " + self.limitClause
+        end if
+
+        query = query + ";" // MySQL також використовує крапку з комою
+
+        // Скидаємо стан
+        self.reset()
+        return query
+    end method
+
+end class
+
+// Клієнтський код 
+class Application is
+
+    public static method main() is
+
+        // Використання PostgreSQL
+        print("Створення запиту для PostgreSQL...")
+        
+        // Клієнт створює будівельника
+        QueryBuilder postgresBuilder = new PostgreSQLQueryBuilder()
+
+        // Клієнт використовує "fluent interface" для покрокової побудови запиту
+        postgresBuilder.select("users", ["name", "email"])
+                       .where("age", ">", "18")
+                       .where("status", "=", "active")
+                       .limit(10)
+
+        // Отримання кінцевого SQL-рядка
+        String postgresQuery = postgresBuilder.getSQL()
+        print(postgresQuery)
+
+        // Використання MySQL
+        print("Створення запиту для MySQL...")
+
+        // Клієнт створює іншого будівельника
+        QueryBuilder mysqlBuilder = new MySQLQueryBuilder()
+
+        // Побудова іншого запиту
+        mysqlBuilder.select("products", ["product_name", "price"])
+                    .where("category_id", "=", "5")
+                    .limit(5)
+
+        // Отримання кінцевого рядка
+        String mysqlQuery = mysqlBuilder.getSQL()
+        print(mysqlQuery)
+
+    end method
+
+end class
