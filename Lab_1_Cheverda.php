@@ -33,12 +33,12 @@ class LocalStorage implements StorageInterface
 {
     
     //Конструктор та властивості ( rootDirectory).
-    private function __construct() { }
+    private function __construct() { ... }
     
 
     public function putFile(string path, string content): bool
     {
-        // логіка збереження файлу на диск
+        // логіка збереження файлу на диск 
         return true;
     }
 
@@ -57,12 +57,11 @@ class LocalStorage implements StorageInterface
 
 
 //Реалізація сховища для Amazon S3.
-
 class S3Storage implements StorageInterface
 {
     /*
     Тут знаходяться параметри, bucket, apiKey 
-    private function __construct(string apiKey, string bucket) { }
+    private function __construct(string apiKey, string bucket) { ... }
     */
 
     public function putFile(string path, string content): bool
@@ -86,10 +85,9 @@ class S3Storage implements StorageInterface
 
 
 /*
-Клас StorageManager (Менеджер Сховищ).
-Цей клас реалізований за патерном "Одинак" (Singleton).
+Цей клас реалізований за патерном "Одинак".
 Він надає єдину глобальну точку доступу для отримання
-екземплярів необхідних сховищ (LocalStorage, S3Storage).
+екземплярів необхідних сховищ.
 */
 class StorageManager
 {
@@ -99,7 +97,7 @@ class StorageManager
     private static ?StorageManager instance = null;
 
     
-    @var StorageInterface[] //Масив (реєстр) для зберігання вже створених екземплярів сховищ (щоб не створювати їх повторно).
+    @var StorageInterface[] //Масив для зберігання вже створених екземплярів сховищ щоб не створювати їх повторно.
     //Ключ – назва типу ('local', 's3').
     
     private array storageInstances = [];
@@ -116,14 +114,12 @@ class StorageManager
 
     
     //Забороняться клонування об'єкта.
-    
     private function __clone()
     {
     }
 
     
     //Забороняється десеріалізацію.
-    
     public function __wakeup()
     {
         throw new \Exception("Не можливо серелізувати Одинака.");
@@ -149,9 +145,9 @@ class StorageManager
 
     /*
     Метод для отримання конкретного екземпляра сховища за типом.
-    Тип сховища ('local' або 's3') буде братися з налаштувань користувача.
+    Тип сховища буде братися з налаштувань користувача.
     */
-    @param string storageType "local", "s3",
+    @param string storageType "local", "s3", ...
     @return StorageInterface
     @throws \Exception // Якщо тип сховища не підтримується.
 
@@ -181,7 +177,6 @@ class StorageManager
 
 
 // Імітація класу користувача, який має налаштування сховища.
-
 class User
 {
     private string username;
