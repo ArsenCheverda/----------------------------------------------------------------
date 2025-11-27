@@ -186,7 +186,7 @@ class SimplePage extends Page
     /*
     Реалізація методу view.
     Делегує роботу конкретному рендереру.
-     */
+   */
     public function view(): string
     {
         return $this->renderer->renderSimplePage($this->title, $this->content);
@@ -207,7 +207,7 @@ class ProductPage extends Page
     /*
     Реалізація методу view.
     Делегує роботу конкретному рендереру.
-     */
+   */
     public function view(): string
     {
         return $this->renderer->renderProductPage($this->product);
